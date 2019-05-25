@@ -86,7 +86,7 @@ module Line
       def update_liff liff_id,type=nil,url=nil,description = nil,features = {}
           payload = {}
           payload[:view] = {type:type,url:url}.reject { |k,v| v.nil? }
-          payload[:descriptions] = description
+          payload[:description] = description
           payload[:features] = features
           payload.reject!{|k,v| v.nil? or v.length == 0}
           put "/#{liff_id}", payload.to_json
