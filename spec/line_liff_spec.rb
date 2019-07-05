@@ -81,7 +81,7 @@ RSpec.describe Line::Bot::LiffClient  do
     expect(WebMock).to have_requested(:delete, Line::Bot::LiffClient.default_endpoint + '/id-of-any')
   end
 
-  it 'update a liff' do
+  it 'updates a liff' do
     uri_template = Addressable::Template.new Line::Bot::LiffClient.default_endpoint + '/id-of-any'
     stub_request(:delete, uri_template).to_return(body: '{}', status: 200)
 

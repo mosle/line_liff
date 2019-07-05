@@ -31,17 +31,20 @@ unless Line::Bot::Client.method_defined? :put
     module Bot
       class Client
         def put(endpoint_path, payload = nil)
+          if self.class.method_defined? :credentials?
             raise Line::Bot::API::InvalidCredentialsError, 'Invalidates credentials' unless credentials?
-      
-            request = Line::Bot::Request.new do |config|
-              config.httpclient     = httpclient
-              config.endpoint       = endpoint
-              config.endpoint_path  = endpoint_path
-              config.credentials    = credentials
-              config.payload        = payload if payload
-            end
-      
-            request.put
+          else
+            channel_token_required
+          end
+          request = Line::Bot::Request.new do |config|
+            config.httpclient     = httpclient
+            config.endpoint       = endpoint
+            config.endpoint_path  = endpoint_path
+            config.credentials    = credentials
+            config.payload        = payload if payload
+          end
+    
+          request.put
         end
       end
     end
