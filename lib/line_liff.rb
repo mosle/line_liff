@@ -24,27 +24,33 @@ unless Line::Bot::Request.method_defined? :put
       end
     end
   end
-end
+end if defined?(Line::Bot::Request)
 
 unless Line::Bot::Client.method_defined? :put
   module Line
     module Bot
       class Client
-        def put(endpoint_path, payload = nil)
-          if self.class.method_defined? :credentials?
-            raise Line::Bot::API::InvalidCredentialsError, 'Invalidates credentials' unless credentials?
+        
+        def put(endpoint_path, payload = nil,headers={})
+          if defined?(Line::Bot::Request)
+            if self.class.method_defined? :credentials?
+              raise Line::Bot::API::InvalidCredentialsError, 'Invalidates credentials' unless credentials?
+            else
+              channel_token_required
+            end
+            request = Line::Bot::Request.new do |config|
+              config.httpclient     = httpclient
+              config.endpoint       = endpoint
+              config.endpoint_path  = endpoint_path
+              config.credentials    = credentials
+              config.payload        = payload if payload
+            end
+      
+            return request.put
           else
-            channel_token_required
+            headers = Line::Bot::API::DEFAULT_HEADERS.merge(headers)
+            httpclient.put(endpoint + endpoint_path, payload, headers)
           end
-          request = Line::Bot::Request.new do |config|
-            config.httpclient     = httpclient
-            config.endpoint       = endpoint
-            config.endpoint_path  = endpoint_path
-            config.credentials    = credentials
-            config.payload        = payload if payload
-          end
-    
-          request.put
         end
       end
     end
@@ -73,7 +79,7 @@ module Line
       end
       def get_liffs
           endpoint_path  = ""
-          get endpoint_path
+          get endpoint_path,credentials
       end
 
       def create_liff type,url,description = nil,features = {}
@@ -84,7 +90,7 @@ module Line
               description:description,
               features:features
           }
-          post "", payload.to_json
+          post "", payload.to_json,credentials
       end
       def update_liff liff_id,type=nil,url=nil,description = nil,features = {}
           payload = {}
@@ -92,11 +98,11 @@ module Line
           payload[:description] = description
           payload[:features] = features
           payload.reject!{|k,v| v.nil? or v.length == 0}
-          put "/#{liff_id}", payload.to_json
+          put "/#{liff_id}", payload.to_json,credentials
       end
 
       def delete_liff liff_id
-          delete "/#{liff_id}"
+          delete "/#{liff_id}",credentials
       end
     end
   end

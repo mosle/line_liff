@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "addressable", "~> 2.6"
   spec.add_development_dependency "webmock", "~> 3.5.1"
 
-  spec.add_dependency "line-bot-api"
+  spec.add_dependency "line-bot-api","~>1.12"
 end
